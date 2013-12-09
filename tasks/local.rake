@@ -1,6 +1,6 @@
 desc "Setup local repository checkout"
 task :local do
-  invoke "setup:local:environment"
+  invoke "local:environment"
 end
 namespace :local do
   desc "Symlink the checkouts shared folders correctly"
@@ -11,13 +11,15 @@ namespace :local do
 
     run_locally do
       unless test("[ -d #{fetch(:shared_local_dir)}/#{fetch(:shared_uploads)} ]")
-        execute :mkdir, '-p', "#{fetch(:shared_local_dir)}/#{fetch(:shared_uploads)}"
+        execute :mkdir, '-m', '2777', '-p', "#{fetch(:shared_local_dir)}/#{fetch(:shared_uploads)}"
       end
       unless test("[ -f #{fetch(:shared_local_dir)}/#{fetch(:shared_settings)} ]")
         execute :touch, '-f', "#{fetch(:shared_local_dir)}/#{fetch(:shared_settings)}"
       end
-      execute :ln, '-sf', "#{fetch(:shared_local_dir)}/#{fetch(:shared_uploads)}", "#{fetch(:shared_uploads)}"
-      execute :ln, '-sf', "#{fetch(:shared_local_dir)}/#{fetch(:shared_settings)}", "#{fetch(:shared_settings)}"
+      unless test("[ -d #{fetch(:shared_uploads)} ]")
+        execute :ln, '-sf', "#{fetch(:shared_local_dir)}/#{fetch(:shared_uploads)}", "#{fetch(:shared_uploads)}"
+      end
+      execute :cp, '-f', "#{fetch(:shared_local_dir)}/#{fetch(:shared_settings)}", "#{fetch(:shared_settings)}"
     end
   end
 
@@ -36,5 +38,5 @@ namespace :local do
       execute :chmod, '+x', '.git/hooks/pre-commit'
     end
   end
-  after :environment, 'setup:local:precommit'
+  after :environment, 'local:precommit'
 end

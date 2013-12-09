@@ -1,12 +1,12 @@
 set :application,   'application'
-set :app_url,       'http://#{fetch(:application)}.com'
+set :app_url,       "http://#{fetch(:application)}.com"
 set :repo_url,      'git@github.com:example/example.git'
 set :branch,        'master'
 
 set :user,          'deploy'
 set :group,         'deploy'
 
-set :deploy_to,     '/var/www/#{fetch(:application)}'
+set :deploy_to,     "/var/www/#{fetch(:application)}"
 # Root directory where backups will be placed.
 set :backup_dir,    "#{fetch(:deploy_to)}/backup"
 # Backup directories, currently only DB is suppored by drush.rake
@@ -42,13 +42,9 @@ set :varnish_ban_pattern,     "req.url ~ ^/"
 namespace :deploy do
   # Required by capistrano
   task :restart do end
-
-  after :starting, :drupal_offline do
+  after :finishing, :drupal_online do
     invoke "drush:site_offline"
     invoke "drush:backupdb"
-  end
-
-  after :finishing, :drupal_online do
     invoke "cache:apc"
     invoke "cache:all"
     invoke "drush:updatedb"
