@@ -5,6 +5,8 @@ NOTE! These tasks are **NOT** configured for multiple servers!
 Tasks
 -----
 ```sh
+cap assets:compile                 # Compile assets
+cap assets:push                    # Push assets to remote
 cap cache                          # Clear all caches
 cap cache:all                      # Clear Drupal all cache
 cap cache:apc                      # Clear APC cache
@@ -88,4 +90,8 @@ set :drush_sql_dump_options,  "--structure-tables-key=common --gzip"
 set :varnish_cmd,             "/usr/bin/varnishadm"
 set :varnish_address,         "127.0.0.1:6082"
 set :varnish_ban_pattern,     "req.url ~ ^/"
+
+# tasks/assets.rake
+set :assets_compile
+set :assets_output
 ```

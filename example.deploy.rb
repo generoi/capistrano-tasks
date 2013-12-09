@@ -39,11 +39,15 @@ set :varnish_cmd,             "/usr/bin/varnishadm"
 set :varnish_address,         "127.0.0.1:6082"
 set :varnish_ban_pattern,     "req.url ~ ^/"
 
+set :assets_compile,          "grunt build"
+set :assets_output,           %w[sites/all/themes/theme/css]
+
 namespace :deploy do
   # Required by capistrano
   task :restart do end
   after :finishing, :drupal_online do
     invoke "drush:site_offline"
+    invoke "assets:push"
     invoke "drush:backupdb"
     invoke "cache:apc"
     invoke "cache:all"
