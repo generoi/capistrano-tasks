@@ -33,6 +33,7 @@ cap git:create_release             # Copy repo to releases
 cap git:tag                        # Place release tag into Git and push it to origin server.
 cap local                          # Setup local repository checkout
 cap local:environment              # Symlink the checkouts shared folders correctly
+cap local:init                     # Initialize git submodules, bower and npm
 cap local:precommit                # Setup local grunt pre-commit hook
 cap logs:apache_access             # Tail the apache_access file
 cap logs:apache_error              # Tail the apache_error file

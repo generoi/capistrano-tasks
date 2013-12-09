@@ -1,6 +1,8 @@
 desc "Setup local repository checkout"
 task :local do
-  invoke "local:environment"
+  invoke 'local:environment'
+  invoke 'local:precommit'
+  invoke 'local:init'
 end
 namespace :local do
   desc "Symlink the checkouts shared folders correctly"
@@ -38,5 +40,13 @@ namespace :local do
       execute :chmod, '+x', '.git/hooks/pre-commit'
     end
   end
-  after :environment, 'local:precommit'
+
+  desc "Initialize git submodules, bower and npm"
+  task :init do
+    run_locally do
+      execute :npm, :install if test("[ -f package.json ]")
+      execute :bower, :install if test("[ -f bower.json ]")
+      execute :git, :submodule, :update, '--init'
+    end
+  end
 end
