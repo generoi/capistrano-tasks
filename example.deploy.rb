@@ -57,5 +57,6 @@ namespace :deploy do
   end
 
   after :rollback, 'cache'
+  after :started, 'git:check_pushed'
 end
 

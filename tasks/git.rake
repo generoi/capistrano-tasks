@@ -12,7 +12,25 @@ namespace :git do
     end
   end
 
-  desc 'Copy repo to releases'
+  desc "Check if there are unpushed commits"
+  task :check_pushed do
+    run_locally do
+      log = capture(:git, :log, '--pretty="%h: %s"', "origin/#{fetch(:branch)}..HEAD")
+      unless log.empty?
+        puts "The branch is ahead of origin/#{fetch(:branch)} by #{log.lines.count} commits."
+        puts
+        puts log
+        puts
+        puts "Are you sure you want to continue without pushing these? [Y/n]"
+        ask(:verification, 'y')
+        unless fetch(:verification) == 'y'
+          error "Exiting as there are unpushed commits."
+        end
+      end
+    end
+  end
+
+  desc "Copy repo to releases"
   task create_release: :'git:update' do
     on roles(:all) do
       with fetch(:git_environmental_variables) do

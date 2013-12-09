@@ -28,6 +28,8 @@ cap drush:site_online              # Set the site online
 cap drush:updatedb                 # Run Drupal database migrations if required
 cap files:pull                     # Pull shared directories (from remote to local)
 cap files:push                     # Push drupal sites files (from local to remote)
+cap git:check_pushed               # Check if there are unpushed commits
+cap git:create_release             # Copy repo to releases
 cap git:tag                        # Place release tag into Git and push it to origin server.
 cap local                          # Setup local repository checkout
 cap local:environment              # Symlink the checkouts shared folders correctly
