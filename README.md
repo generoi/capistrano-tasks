@@ -1,5 +1,7 @@
 Capistrano 3 tasks for drupal sites.
 
+NOTE! These tasks are **NOT** configured for multiple servers!
+
 Tasks
 -----
 ```sh
