@@ -25,6 +25,7 @@ namespace :git do
         ask(:verification, 'y')
         unless fetch(:verification) == 'y'
           error "Exiting as there are unpushed commits."
+          exit 1
         end
       end
     end
