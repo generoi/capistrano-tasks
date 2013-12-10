@@ -29,7 +29,8 @@ namespace :setup do
     on roles(:app) do |host|
       within fetch(:shared_dir) do
         fetch(:linked_dirs).each do |dir|
-          execute :mkdir, '-p', dir
+          execute :mkdir, '-p', shared_path.join(dir)
+          execute :chmod, '777', shared_path.join(dir)
         end
       end
     end
