@@ -17,7 +17,10 @@ namespace :cache do
     task action do
       on roles(:all) do |host|
         within current_path do
-          execute fetch(:drush_cmd), 'cache-clear', action
+          begin
+            execute fetch(:drush_cmd), 'cache-clear', action
+          rescue
+          end
         end
       end
     end
@@ -28,7 +31,7 @@ namespace :cache do
     on roles(:all) do |host|
       begin
         puts capture(fetch(:varnish_cmd), '-T', fetch(:varnish_address), :ban, fetch(:varnish_ban_pattern))
-      rescue Exception => error
+      rescue
         # Ignore exceptions as they are thrown if varnish is down
       end
     end
