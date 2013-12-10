@@ -21,6 +21,9 @@ cap cache:token                    # Clear Drupal token cache
 cap cache:varnish                  # Clear Varnish cache
 cap cache:views                    # Clear Drupal views cache
 cap deploy:temporary               # Do a quick temporary deploy with only staged files.
+cap deploy:check:assets            # Check that assets can compile
+cap deploy:check:pushed            # Check if there are unpushed commits
+cap deploy:check:sshagent          # Check if a ssh agent is present
 cap drush:backupdb                 # Backup the database
 cap drush:importdb                 # Import backed up database
 cap drush:site_offline             # Set the site offline
@@ -28,7 +31,6 @@ cap drush:site_online              # Set the site online
 cap drush:updatedb                 # Run Drupal database migrations if required
 cap files:pull                     # Pull shared directories (from remote to local)
 cap files:push                     # Push drupal sites files (from local to remote)
-cap git:check_pushed               # Check if there are unpushed commits
 cap git:create_release             # Copy repo to releases
 cap git:tag                        # Place release tag into Git and push it to origin server.
 cap local                          # Setup local repository checkout
@@ -64,6 +66,10 @@ cap ssh                            # Open a SSH session to remote
 
 Variables
 ---------
+
+This is a list of all variables available and their default values. For example
+configurations please see the [example.deploy.rb](https://github.com/generoi/capistrano-tasks/blob/master/example.deploy.rb).
+
 ```ruby
 # tasks/setup.rake
 set :user

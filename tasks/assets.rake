@@ -1,5 +1,3 @@
-set :assets_sass_compile, "grunt compass:dist"
-
 namespace :assets do
   desc "Compile assets"
   task :compile do

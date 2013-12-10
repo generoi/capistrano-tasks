@@ -25,4 +25,65 @@ namespace :deploy do
       end
     end
   end
+
+  namespace :check do
+    desc "Check if a ssh agent is present"
+    task :sshagent do
+      run_locally do
+        begin
+          ssh_agent = capture('ssh-add', '-l')
+        rescue
+          puts %Q[
+            You do not have an identity in your authentication agent.
+            Make sure the agent is running and add your key before continuing.
+
+            $ eval `ssh-agent -s`
+            $ ssh-add
+          ]
+          exit 1
+        end
+      end
+    end
+
+    desc "Check that assets can compile"
+    task :assets do
+      run_locally do
+        next if fetch(:assets_compile).nil?
+        begin
+          execute fetch(:assets_compile)
+        rescue
+          puts %Q[
+            Assets could not be compiles with #{fetch(:assets_compile)}, make sure
+            all dependencies are installed.
+
+            If you are using grunt for compilation, you have to run:
+
+            $ npm install
+          ]
+          exit 1
+        end
+      end
+    end
+
+    desc "Check if there are unpushed commits"
+    task :pushed do
+      run_locally do
+        log = capture(:git, :log, '--pretty="%h: %s"', "origin/#{fetch(:branch)}..HEAD")
+        unless log.empty?
+          puts %Q[
+          The branch is ahead of origin/#{fetch(:branch)} by #{log.lines.count} commits."
+
+          #{log}
+
+          Are you sure you want to continue without pushing these? [Y/n]
+          ]
+          ask(:verification, 'y')
+          unless fetch(:verification) == 'y'
+            error "Exiting as there are unpushed commits."
+            exit 1
+          end
+        end
+      end
+    end
+  end
 end

@@ -57,6 +57,8 @@ namespace :deploy do
   end
 
   after :rollback, 'cache'
-  after :check, 'git:check_pushed'
+  before :starting, 'deploy:check:pushed'
+  before :starting, 'deploy:check:assets'
+  before :starting, 'deploy:check:sshagent'
 end
 
