@@ -9,10 +9,7 @@ namespace :drush do
   task :site_offline do
     on roles(:all) do |host|
       within current_path do
-        begin
-          execute fetch(:drush_cmd), :vset, 'maintenance_mode', '1', '-y'
-        rescue
-        end
+        execute fetch(:drush_cmd), :vset, 'maintenance_mode', '1', '-y'
       end
     end
   end
@@ -21,10 +18,7 @@ namespace :drush do
   task :site_online do
     on roles(:all) do |host|
       within current_path do
-        begin
-          execute fetch(:drush_cmd), :vset, 'maintenance_mode', '0', '-y'
-        rescue
-        end
+        execute fetch(:drush_cmd), :vset, 'maintenance_mode', '0', '-y'
       end
     end
   end
@@ -39,10 +33,7 @@ namespace :drush do
       within current_path do
         timestamp = Time.now.strftime('%Y%m%d-%H%M%S')
         file = "#{fetch(:backup_dir)}/db/release-#{timestamp}-#{revision}.sql"
-        begin
-          execute fetch(:drush_cmd), 'sql-dump', fetch(:drush_sql_dump_options), "--result-file=#{file}"
-        rescue
-        end
+        execute fetch(:drush_cmd), 'sql-dump', fetch(:drush_sql_dump_options), "--result-file=#{file}"
       end
     end
   end
@@ -66,10 +57,7 @@ namespace :drush do
         filepath = "#{fetch(:backup_dir)}/db/#{filename}"
 
         if test("[ -f #{filepath} ]")
-          begin
-            execute :gunzip, '-c', "#{filepath}", "| drush sql-cli"
-          rescue
-          end
+          execute :gunzip, '-c', "#{filepath}", "| drush sql-cli"
         else
           error "#{filepath} does not exist."
         end
@@ -81,10 +69,7 @@ namespace :drush do
   task :updatedb do
     on roles(:all) do |host|
       within current_path do
-        begin
-          execute fetch(:drush_cmd), :updatedb, '-y'
-        rescue
-        end
+        execute fetch(:drush_cmd), :updatedb, '-y'
       end
     end
   end

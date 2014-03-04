@@ -17,10 +17,7 @@ namespace :cache do
     task action do
       on roles(:all) do |host|
         within current_path do
-          begin
-            execute fetch(:drush_cmd), 'cache-clear', action
-          rescue
-          end
+          execute fetch(:drush_cmd), 'cache-clear', action
         end
       end
     end
