@@ -45,7 +45,7 @@ namespace :cache do
           apc_clear_cache('user');
           apc_clear_cache('opcode');
       ]
-      filepath = current_path.join('apc_clear.php');
+      filepath = release_path.join('apc_clear.php');
       begin
         upload! StringIO.new(contents), filepath
         execute :curl, '--silent', "#{fetch(:app_url)}/apc_clear.php"
