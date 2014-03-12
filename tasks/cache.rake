@@ -48,6 +48,7 @@ namespace :cache do
       filepath = release_path.join('apc_clear.php');
       begin
         upload! StringIO.new(contents), filepath
+        execute :chmod, '644', filepath
         execute :curl, '--silent', "#{fetch(:app_url)}/apc_clear.php"
       ensure
         execute :rm, '-f', filepath
