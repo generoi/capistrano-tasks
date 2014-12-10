@@ -21,7 +21,7 @@ set :shared_settings,   "sites/default/settings.local.php"
 set :shared_uploads,    "sites/default/files"
 
 # Symlink these paths.
-set :linked_files,      ["#{fetch(:shared_settings)}"]
+set :linked_files,      ["#{fetch(:shared_settings)}", ".htaccess"]
 set :linked_dirs,       ["#{fetch(:shared_uploads)}"]
 
 # Flags used by logs-tasks
@@ -47,17 +47,23 @@ namespace :deploy do
   task :restart do end
   after :finishing, :drupal_online do
     invoke "drush:site_offline"
+    # If you have the CSS/JS assets in the repo (instead of only sass) you can
+    # remove this.
     invoke "assets:push"
     invoke "drush:backupdb"
-    invoke "cache:apc"
+    # If you use APC and not Opcache (PHP 5.5+) use this instead of a graceful restart
+    # invoke "cache:apc"
+    invoke "service:apache:graceful"
     invoke "cache:all"
     invoke "drush:updatedb"
     invoke "drush:site_online"
-    invoke "cache:varnish"
+    # If you use varnish, uncomment the following
+    # invoke "cache:varnish"
   end
 
   after :rollback, 'cache'
   before :starting, 'deploy:check:pushed'
+  # Remove this if you dont use "assets:push"
   before :starting, 'deploy:check:assets'
   before :starting, 'deploy:check:sshagent'
 end
