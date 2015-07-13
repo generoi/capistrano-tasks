@@ -1,7 +1,10 @@
-set :backup_dir,    "#{fetch(:deploy_to)}/backup"
-set :backup_dirs,   %w[db]
+# Location of root backup directory
+set :backup_dir,      "#{fetch(:deploy_to)}/backup"
+# Backup directories within.
+set :backup_dirs,     %w[db]
+set :shared_settings, "sites/default/settings.local.php"
 
-desc "Setup live environment"
+desc "Setup a deploy environment"
 task :setup do
   invoke "setup:environment"
 end
@@ -11,10 +14,14 @@ namespace :setup do
   task :environment do
     on roles(:app) do |host|
       unless test("[ -d #{fetch(:deploy_to)} ]")
+        # Create the project root, to where capistrano will deploy.
         execute :mkdir, fetch(:deploy_to)
         execute :chown, "#{fetch(:user)}:#{fetch(:group)}", fetch(:deploy_to)
+        # Make the group sticky, so that the deploy user always has access.
         execute :chmod, 'g+s', fetch(:deploy_to)
+        # Create capistranos required directories.
         execute :mkdir, '-p', "#{fetch(:deploy_to)}/{releases,shared}"
+        # Tighten server security.
         execute :chmod, '-R', 'o-r', fetch(:deploy_to)
         info "#{fetch(:deploy_to)} created and configured on #{host}"
       else
@@ -23,7 +30,9 @@ namespace :setup do
     end
   end
 
-  desc "Scaffold the remote shared directory"
+  # The shared directory contains the linked files and directories (eg.
+  # untracked config files).
+  desc "Scaffold the deploy environments shared directory."
   task :shared do
     next unless any? :linked_dirs
     on roles(:app) do |host|
@@ -36,7 +45,7 @@ namespace :setup do
     end
   end
 
-  desc "Scaffold the remtoe configuration files"
+  desc "Scaffold the deploy environments shared files"
   task :config do
     next unless any? :linked_files
 

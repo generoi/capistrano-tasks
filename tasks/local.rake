@@ -1,10 +1,13 @@
-desc "Setup local repository checkout"
+desc "Setup your local repository checkout"
 task :local do
   invoke 'local:environment'
-  invoke 'local:precommit'
+  invoke 'local:githooks'
   invoke 'local:init'
 end
 namespace :local do
+  # Only used on shared development environments.
+  # Symlinks your checkouts settings, and uploads directory with a cross-user
+  # shared.
   desc "Symlink the checkouts shared folders correctly"
   task :environment do
     next if fetch(:shared_local_dir).nil?
@@ -25,22 +28,24 @@ namespace :local do
     end
   end
 
-  desc "Setup local grunt pre-commit hook"
-  task :precommit do
+  # Create a git commit hook which runs grunt lint.
+  desc "Setup local git hooks (if available)"
+  task :githooks do
     run_locally do
-      unless test("[ -f Gruntfile.js ]")
-        info "Missing Gruntfile.js in project root."
-        next
-      end
       if test("[ -f .git/hooks/pre-commit ]")
-        info "Hooks already exists: .git/hooks/pre-commit"
+        info "Hook already exists: .git/hooks/pre-commit"
         next
       end
-      execute "echo -e \"#/bin/sh\\ngrunt lint\" >| .git/hooks/pre-commit"
-      execute :chmod, '+x', '.git/hooks/pre-commit'
+      if test("[ -f .git-hooks/install.sh ]")
+        exec ".git-hooks/install.sh"
+        info "Installed git hooks."
+        next
+      end
+      info "No hook available. You should probably setup this repo to use https://github.com/generoi/git-hooks"
     end
   end
 
+  # Fetch all 3rd party submodules.
   desc "Initialize git submodules, bower and npm"
   task :init do
     run_locally do
