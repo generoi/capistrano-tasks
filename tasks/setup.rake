@@ -51,27 +51,38 @@ namespace :setup do
 
     on roles(:app) do |host|
       fetch(:linked_files).each do |file|
-        unless file == "#{fetch(:shared_settings)}"
-          execute :touch, '-f', shared_path.join(file)
-          info "Created new and empty file: #{shared_path.join(file)}"
-          next
-        end
-
         if test("[ -f #{shared_path.join(file)} ]")
           info "Configuration file already exists: #{shared_path.join(file)}"
           next
         end
+        # The shared settings file should be scaffolded from user input. The
+        # others are simply touched.
+        unless file == "#{fetch(:shared_settings)}"
+          execute :touch, '-f', shared_path.join(file)
+          info "Created new and empty file: #{shared_path.join(file)}"
+        end
+      end
+    end
+  end
 
-        ask(:database, "#{fetch(:application)}")
-        ask(:username, "#{fetch(:application)}")
-        ask(:password, "")
+  desc "Scaffold the deploy environments database settings"
+  task :database do
+    on roles(:app) do |host|
+      if test("[ -f #{shared_path.join(fetch(:shared_settings))} ]")
+        info "Configuration file already exists: #{shared_path.join(fetch(:shared_settings))}"
+        next
+      end
 
-        contents = %Q[
-          <?php
+      ask(:database, "#{fetch(:application)}")
+      ask(:username, "#{fetch(:application)}")
+      ask(:password, "")
 
-          $databases = array(
+      contents = %Q[
+        <?php
+
+        $databases = array(
+          'default' => array(
             'default' => array(
-              'default' => array(
               'database' => '#{fetch(:database)}',
               'username' => '#{fetch(:username)}',
               'password' => '#{fetch(:password)}',
@@ -79,13 +90,26 @@ namespace :setup do
               'port' => '',
               'driver' => 'mysql',
               'prefix' => '',
-              ),
             ),
-          );
-        ]
-        execute :mkdir, '-p', File.dirname(shared_path.join(file))
-        upload! StringIO.new(contents), shared_path.join(file)
-        info "Scaffolded configuration file: #{shared_path.join(file)}"
+          ),
+        );
+      ]
+
+      # Scaffold the file.
+      execute :mkdir, '-p', File.dirname(shared_path.join(fetch(:shared_settings)))
+      upload! StringIO.new(contents), shared_path.join(fetch(:shared_settings))
+      execute :chmod, '0664', shared_path.join(fetch(:shared_settings))
+      info "Scaffolded configuration file: #{shared_path.join(fetch(:shared_settings))}"
+
+      # Create the database if needed.
+      begin
+        execute :mysql, '-u', 'root', '-e', "\"CREATE USER IF NOT EXISTS '#{fetch(:username)}'@'localhost' IDENTIFIED BY '#{fetch(:password)}';\""
+        execute :mysql, '-u', 'root', '-e', "\"SET PASSWORD FOR '#{fetch(:username)}'@'localhost' = PASSWORD('#{fetch(:password)}');\""
+        execute :mysql, '-u', 'root', '-e', "\"CREATE DATABASE IF NOT EXISTS #{fetch(:database)} CHARACTER SET utf8 COLLATE utf8_general_ci;\""
+        execute :mysql, '-u', 'root', '-e', "\"GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, CREATE TEMPORARY TABLES ON #{fetch(:database)}.* TO '#{fetch(:username)}'@'localhost';\""
+        execute :mysql, '-u', 'root', '-e', "\"FLUSH PRIVILEGES;\""
+      rescue
+        info "Was not able to create the database."
       end
     end
   end
@@ -105,5 +129,6 @@ namespace :setup do
 
   after :environment, 'setup:shared'
   after :environment, 'setup:config'
+  after :environment, 'setup:database'
   after :environment, 'setup:backup_dir'
 end
