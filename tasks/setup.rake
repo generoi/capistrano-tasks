@@ -95,22 +95,23 @@ namespace :setup do
         );
       ]
 
+      # Create the database if needed.
+      begin
+        execute :mysql, '-u', 'root', '-e', "\"CREATE DATABASE IF NOT EXISTS #{fetch(:database)} CHARACTER SET utf8 COLLATE utf8_general_ci;\""
+        execute :mysql, '-u', 'root', '-e', "\"GRANT ALL PRIVILEGES ON #{fetch(:database)}.* TO '#{fetch(:username)}'@'localhost' IDENTIFIED BY '#{fetch(:password)}';\""
+        execute :mysql, '-u', 'root', '-e', "\"SET PASSWORD FOR '#{fetch(:username)}'@'localhost' = PASSWORD('#{fetch(:password)}');\""
+        execute :mysql, '-u', 'root', '-e', "\"FLUSH PRIVILEGES;\""
+      rescue
+        info "Was not able to create the database."
+        next
+      end
+
       # Scaffold the file.
       execute :mkdir, '-p', File.dirname(shared_path.join(fetch(:shared_settings)))
       upload! StringIO.new(contents), shared_path.join(fetch(:shared_settings))
       execute :chmod, '0664', shared_path.join(fetch(:shared_settings))
       info "Scaffolded configuration file: #{shared_path.join(fetch(:shared_settings))}"
 
-      # Create the database if needed.
-      begin
-        execute :mysql, '-u', 'root', '-e', "\"CREATE USER IF NOT EXISTS '#{fetch(:username)}'@'localhost' IDENTIFIED BY '#{fetch(:password)}';\""
-        execute :mysql, '-u', 'root', '-e', "\"SET PASSWORD FOR '#{fetch(:username)}'@'localhost' = PASSWORD('#{fetch(:password)}');\""
-        execute :mysql, '-u', 'root', '-e', "\"CREATE DATABASE IF NOT EXISTS #{fetch(:database)} CHARACTER SET utf8 COLLATE utf8_general_ci;\""
-        execute :mysql, '-u', 'root', '-e', "\"GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, CREATE TEMPORARY TABLES ON #{fetch(:database)}.* TO '#{fetch(:username)}'@'localhost';\""
-        execute :mysql, '-u', 'root', '-e', "\"FLUSH PRIVILEGES;\""
-      rescue
-        info "Was not able to create the database."
-      end
     end
   end
 
