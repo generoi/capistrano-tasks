@@ -1,8 +1,11 @@
+require "#{File.dirname(__FILE__)}/../ssh"
+
 desc "Open a SSH session to remote"
 task :ssh do
   on roles(:all) do |host|
-    user = host.user + "@" if !host.user.nil?
-    exec "ssh -t #{user}#{host.hostname} '/bin/bash'"
+    cmd = SSH.new(host, fetch(:ssh_options), '/bin/bash').to_s
+    info cmd
+    exec cmd
   end
 end
 

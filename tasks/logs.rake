@@ -1,3 +1,5 @@
+require "#{File.dirname(__FILE__)}/../ssh"
+
 set :tail_options, "-n 100 -f"
 set :log_apache_access, "/var/log/apache2/access.log"
 set :log_apache_error, "/var/log/apache2/error.log"
@@ -12,9 +14,10 @@ namespace :logs do
   %w[apache_access apache_error varnish].each do |log|
     desc "Tail the #{log} file"
     task log do
-      on roles(:all) do
-        user = host.user + "@" if !host.user.nil?
-        exec "ssh -t #{user}#{host.hostname} 'tail #{fetch(:tail_options)} #{log_map[log]}'"
+      on roles(:all) do |host|
+        cmd = SSH.new(host, fetch(:ssh_options), "tail #{fetch(:tail_options)} #{log_map[log]}").to_s
+        info cmd
+        exec cmd
       end
     end
   end
@@ -22,8 +25,9 @@ namespace :logs do
   desc "View htop"
   task :htop do
     on roles(:all) do |host|
-      user = host.user + "@" if !host.user.nil?
-      exec "ssh -t #{user}#{host.hostname} 'htop'"
+      cmd = SSH.new(host, fetch(:ssh_options), "htop || top").to_s
+      info cmd
+      exec cmd.to_s
     end
   end
 end
