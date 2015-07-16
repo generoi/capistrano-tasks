@@ -13,10 +13,13 @@ Development environment
 
 **These you must install by yourself.**
 
+On OSX you can install them with homebrew using `make install-dep-osx`
+
 - Ansible
-- Vagrant
+- Vagrant (with virtualbox)
 - Composer
-- Drush version 6.x
+- Drush version 6.x (recommeded to install it through composer)
+- GnuPG (osx)
 
 #### Setup
 
@@ -55,14 +58,13 @@ drush @dev ssh 'drush core-rsync @production:%files @self:%files'
 1. Make sure your VM is running: `vagrant up`
 2. Open the git project in your favorit editor (locally, the files will be
    synced to the VM automatically).
-3. Install a [livereload extension](http://livereload.com/extensions/) and set
-   it to listen on `35729`.
-4. Run `grunt watch` on the virtual machine to automatically compile assets and
-   refresh your browser when a file changes.
+3. Install a [livereload extension](http://livereload.com/extensions/).
+4. Run `grunt watch` or `gulp watch` on the virtual machine to automatically
+   compile assets and refresh your browser when a file changes.
 5. Start coding by opening http://`<PROJECT>.dev` in your browser.
 
 _All git, cap, and drush commands should ideally be run within the virtual
-machine. Some (such as drush) on your local environment however._
+machine. Some (such as drush) work on your local environment however._
 
 ##### XDebug with Sublime Text 3
 
@@ -70,6 +72,7 @@ machine. Some (such as drush) on your local environment however._
 2. Install `xdebug client` by going to `tools > command palette > install package > xdebug client`.
 3. Configure xdebug in sublime for the project with the following `*.sublime-project` settings.
 
+    ```json
     {
       "folders": [
         {
@@ -86,6 +89,7 @@ machine. Some (such as drush) on your local environment however._
         }
       }
     }
+    ```
 
 4. Add a breakpoint and start debugging.
 
@@ -94,8 +98,7 @@ machine. Some (such as drush) on your local environment however._
 1. Visit `/admin/config/development/` and enable XHProf.
 2. Visit any page you want to profile and look for the XHProf link at the bottom of the page.
 
-Alternatively, if you have enbaled XHProf, you can browse the runs at
-`http://xhprof.<project>.dev`.
+XHProf results are at: `http://xhprof.<project>.dev`.
 
 ##### LiveReload
 
