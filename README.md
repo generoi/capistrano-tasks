@@ -7,7 +7,9 @@ Run `cap -T` to display all available tasks.
 Development environment
 -----------------------
 
-> Located on your own machine but running inside a virtual machine.
+> Located on your own machine but running inside a virtual machine. All the
+> development is done on the host machine, while mysql, apache etc are on the
+> guest machine.
 
 ###### Dependencies:
 
@@ -15,56 +17,76 @@ Development environment
 
 On OSX you can install them with homebrew using `make install-dep-osx`
 
+- GnuPG (OS X)
+- PHP
 - Ansible
 - Vagrant (with virtualbox)
 - Composer
 - Drush version 6.x (recommeded to install it through composer)
-- GnuPG (osx)
+- GnuPG (not on osx by default)
+- GNU sed (not on osx by default)
+- rsync version 3.1+ (not on osx by default)
+- modern grep (not on osx by default)
+- vagrant-gatling-rsync (for faster folder sync)
 
 #### Setup
 
 Fetch the code from github, the files and the latest database from production.
 
-_Note that capistrano tasks should always run from within the virtual machine._
+_Note that all of these tasks should run on your local machine._
 
 ```sh
 git clone --recursive git@github.com:generoi/<PROJECT>.git
 
 # Check dependencies and install/update your virtual machine.
+# These tasks are atomic, so you can run them over and over again without
+# losing data.
 make install
 
 # This automatically runs the following tasks:
 # - make vm-update
 # - make vm-install
-# - make local-install
 # - make dev-install
 # - make staging-ssh-copy-id
+# - make staging-mysql-settings
+# - make info
 
 # If you have access to the production environment from the staging
 # environment, you can use:
 make production-ssh-copy-id
 
 # Import the database from the production environment.
+# NOTE you cannot use @self here, as MySQL isn't installed on your local
+# computer. Instead you need to reference the VM with @dev.
 drush sql-sync @production @dev
 
 # Import the files from the production environment.
-# NOTE: Drush rsync requires that one of the targets is local, which is why
-# we need to ssh into dev first.
+# NOTE that you cannot use @dev here, as rsync requires one of the targets be
+# local. Instead we first SSH into the @dev box and then issue it locally.
 drush @dev ssh 'drush core-rsync @production:%files @self:%files'
+
+# Begin watching with rsync (one-way and only if this command is running)
+vagrant gatling-rsync-auto
 ```
 
 #### Start coding
 
-1. Make sure your VM is running: `vagrant up`
-2. Open the git project in your favorit editor (locally, the files will be
-   synced to the VM automatically).
-3. Install a [livereload extension](http://livereload.com/extensions/).
-4. Run `grunt watch` or `gulp watch` on the virtual machine to automatically
-   compile assets and refresh your browser when a file changes.
-5. Start coding by opening http://`<PROJECT>.dev` in your browser.
+> All development should be done on your local machine.
 
-_All git, cap, and drush commands should ideally be run within the virtual
-machine. Some (such as drush) work on your local environment however._
+1. Make sure your VM is running: `vagrant up`
+2. Make sure files are being synced by running `vagrant gatling-rsync-auto`
+3. Open the git project in your favorit editor (locally,
+   the files will be synced to the VM automatically).
+4. Install a [livereload extension](http://livereload.com/extensions/).
+5. Run `grunt watch` or `gulp watch` to automatically compile assets and
+   refresh your browser when a file changes.
+   This task also takes care of rsyncing the changed files to the guest machine
+   (much faster than vagrants rsync).
+6. Start coding by opening http://`<PROJECT>.dev` in your browser.
+
+_All git, cap, and drush commands should ideally run on your own machine. Most
+tasks do work on the virtual machine, but not all of them. Note that drush
+commands should use @dev as a target (eg. drush @dev status)._
 
 ##### XDebug with Sublime Text 3
 
@@ -104,15 +126,16 @@ XHProf results are at: `http://xhprof.<project>.dev`.
 
 1. Install the [browser extension](http://go.livereload.com/extensions).
 2. Enable the extension on said page.
-3. Run `grunt watch` to trigger livereload when css/js/images changes.
+3. Run `grunt watch` or `gulp watch` to trigger livereload when css/js/images changes.
 
 In case you want to use live reloading on mobile devices, look into using the
 [LiveReload Drupal module](https://www.drupal.org/project/livereload).
 
-#### Deploy
+##### Use staging database
 
-Note that all `cap` commands must run from within the virtual machine (`vagrant ssh`).
-Grunt tasks can only run locally if you install it yourself.
+1. Run `make staging-mysql-tunnel` to open a SSH tunnel to the staging environment.
+
+#### Deploy
 
 ```sh
 # Deploy to the production environment
