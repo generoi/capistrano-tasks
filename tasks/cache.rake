@@ -28,8 +28,9 @@ namespace :cache do
     on roles(:all) do |host|
       begin
         puts capture(fetch(:varnish_cmd), '-T', fetch(:varnish_address), :ban, fetch(:varnish_ban_pattern))
-      rescue
+      rescue Esception => err
         # Ignore exceptions as they are thrown if varnish is down
+        error err
       end
     end
   end
@@ -50,6 +51,8 @@ namespace :cache do
         upload! StringIO.new(contents), filepath
         execute :chmod, '644', filepath
         execute :curl, '--silent', "#{fetch(:app_url)}/apc_clear.php"
+      rescue Esception => err
+        error err
       ensure
         execute :rm, '-f', filepath
       end

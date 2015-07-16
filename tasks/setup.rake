@@ -101,8 +101,9 @@ namespace :setup do
         execute :mysql, '-u', 'root', '-e', "\"GRANT ALL PRIVILEGES ON #{fetch(:database)}.* TO '#{fetch(:username)}'@'localhost' IDENTIFIED BY '#{fetch(:password)}';\""
         execute :mysql, '-u', 'root', '-e', "\"SET PASSWORD FOR '#{fetch(:username)}'@'localhost' = PASSWORD('#{fetch(:password)}');\""
         execute :mysql, '-u', 'root', '-e', "\"FLUSH PRIVILEGES;\""
-      rescue
-        info "Was not able to create the database."
+      rescue Exception => err
+        error "Was not able to create the database."
+        error err
         next
       end
 

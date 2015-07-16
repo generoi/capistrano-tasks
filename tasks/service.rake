@@ -10,8 +10,8 @@ namespace :service do
           on roles(:all) do |host|
             begin
               puts capture(:sudo, "/etc/init.d/#{service_cmd[service]}", command)
-            rescue Exception => error
-              # Ignore exceptions as they are thrown if a service is down
+            rescue Exception => err
+              error err
             end
           end
         end
