@@ -42,9 +42,15 @@ namespace :cache do
       contents = %Q[
         <?php
           if (!in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1'))) return;
-          apc_clear_cache();
-          apc_clear_cache('user');
-          apc_clear_cache('opcode');
+
+          if (extension_loaded('apc') && ini_get('apc.enabled')) {
+            apc_clear_cache();
+            apc_clear_cache('user');
+            apc_clear_cache('opcode');
+          }
+          if (extension_loaded('opcache') && ini_get('opcache.enable')) {
+            opcache_reset();
+          }
       ]
       filepath = release_path.join('apc_clear.php');
       begin
