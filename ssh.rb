@@ -2,7 +2,7 @@ require 'net/ssh/proxy/command'
 
 class SSH
   def initialize(host, options, command = nil)
-    @host = host
+    @host = host.clone
     @options = options
     @command = command
     @args = []

@@ -11,11 +11,11 @@ namespace :assets do
   task :push do
     next unless any? :assets_output
     on roles(:all) do |host|
-      user = host.user + "@" if !host.user.nil?
       fetch(:assets_output).each do |dir|
         execute :mkdir, '-p', current_path.join(dir)
         run_locally do
-          execute :rsync, fetch(:rsync_options), "#{dir}/", "#{user}#{host.hostname}:#{current_path.join(dir)}"
+          ssh = SSH.new(host, fetch(:ssh_options))
+          execute :rsync, "--rsh=\"ssh #{ssh.args.join(' ')}\"", fetch(:rsync_options), "#{dir}/", "#{ssh.remote}:#{current_path.join(dir)}"
         end
       end
     end
