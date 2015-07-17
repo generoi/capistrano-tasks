@@ -131,9 +131,19 @@ XHProf results are at: `http://xhprof.<project>.dev`.
 In case you want to use live reloading on mobile devices, look into using the
 [LiveReload Drupal module](https://www.drupal.org/project/livereload).
 
-##### Use staging database
+##### Switch to remote staging database
 
-1. Run `make staging-mysql-tunnel` to open a SSH tunnel to the staging environment.
+This command opens a tunnel on port 3307 to the staging environment port 3306,
+enabling you to use the staging environments database.
+
+```sh
+make staging-mysql-tunnel
+```
+
+Internally this also appends the staging environemnts database information to
+`settings.local.php`, and while running the make command it switches the
+default database settings. Once the connection is closed, it switches back to
+the local database settings.
 
 #### Deploy
 

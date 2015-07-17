@@ -99,7 +99,9 @@ namespace :setup do
       begin
         execute :mysql, '-u', 'root', '-e', "\"CREATE DATABASE IF NOT EXISTS #{fetch(:database)} CHARACTER SET utf8 COLLATE utf8_general_ci;\""
         execute :mysql, '-u', 'root', '-e', "\"GRANT ALL PRIVILEGES ON #{fetch(:database)}.* TO '#{fetch(:username)}'@'localhost' IDENTIFIED BY '#{fetch(:password)}';\""
+        execute :mysql, '-u', 'root', '-e', "\"GRANT ALL PRIVILEGES ON #{fetch(:database)}.* TO '#{fetch(:username)}'@'127.0.0.1' IDENTIFIED BY '#{fetch(:password)}';\""
         execute :mysql, '-u', 'root', '-e', "\"SET PASSWORD FOR '#{fetch(:username)}'@'localhost' = PASSWORD('#{fetch(:password)}');\""
+        execute :mysql, '-u', 'root', '-e', "\"SET PASSWORD FOR '#{fetch(:username)}'@'127.0.0.1' = PASSWORD('#{fetch(:password)}');\""
         execute :mysql, '-u', 'root', '-e', "\"FLUSH PRIVILEGES;\""
       rescue Exception => err
         error "Was not able to create the database."
