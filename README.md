@@ -17,7 +17,6 @@ Development environment
 
 On OSX you can install them with homebrew using `make install-dep-osx`
 
-- GnuPG (OS X)
 - PHP
 - Ansible
 - Vagrant (with virtualbox)

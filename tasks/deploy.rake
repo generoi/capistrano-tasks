@@ -5,8 +5,7 @@ namespace :deploy do
   task :temporary do
     on roles(:all) do |host|
       run_locally do
-        user = host.user + "@" if !host.user.nil?
-        files = capture(:git, :diff, '--name-only', "origin/#{fetch(:branch)}")
+        files = capture(:git, :diff, ' --diff-filter=ACMRTUXB', '--name-only', "origin/#{fetch(:branch)}")
         puts <<-WARN
           Are you sure you want to transfer files from local
           to remote #{current_path}?
@@ -18,7 +17,10 @@ namespace :deploy do
         puts "Continue with transfer [y/N]"
         ask(:verification, 'N')
         if fetch(:verification) == 'y'
-          exec "rsync #{fetch(:rsync_options)} #{files} #{user}#{host.hostname}:#{current_path}"
+          ssh = SSH.new(host, fetch(:ssh_options))
+          files.each_line do |file|
+            execute "scp #{ssh.args.join(' ')} #{Dir.pwd}/#{file.chomp} #{ssh.remote}:#{current_path}/#{file}"
+          end
         else
           info "Skipping deploy."
         end
@@ -31,7 +33,7 @@ namespace :deploy do
     task :sshagent do
       run_locally do
         begin
-          ssh_agent = capture('ssh-add', '-l')
+          capture('ssh-add', '-l')
         rescue
           puts %Q[
             You do not have an identity in your authentication agent.
