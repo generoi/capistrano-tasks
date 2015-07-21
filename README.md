@@ -50,6 +50,10 @@ make install
 # - make staging-mysql-settings
 # - make info
 
+# Add your key to the authorization agent for connecting to production.
+eval $(ssh-agent -s)
+ssh-add
+
 # If you have access to the production environment from the staging
 # environment, you can use:
 make production-ssh-copy-id
