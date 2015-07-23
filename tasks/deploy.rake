@@ -5,7 +5,7 @@ namespace :deploy do
   task :temporary do
     on roles(:all) do |host|
       run_locally do
-        files = capture(:git, :diff, ' --diff-filter=ACMRTUXB', '--name-only', "origin/#{fetch(:branch)}")
+        files = capture(:git, :diff, ' --diff-filter=ACMRTU', '--ignore-submodules', '--name-only', "origin/#{fetch(:branch)}")
         puts <<-WARN
           Are you sure you want to transfer files from local
           to remote #{current_path}?
