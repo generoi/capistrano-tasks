@@ -27,7 +27,8 @@ namespace :cache do
   task :varnish do
     on roles(:all) do |host|
       begin
-        puts capture(fetch(:varnish_cmd), '-T', fetch(:varnish_address), :ban, fetch(:varnish_ban_pattern))
+        cmd = "#{fetch(:varnish_cmd)} -T #{fetch(:varnish_address)} 'ban #{fetch(:varnish_ban_pattern)}'"
+        execute cmd
       rescue Exception => err
         # Ignore exceptions as they are thrown if varnish is down
         error err
@@ -42,21 +43,25 @@ namespace :cache do
       contents = %Q[
         <?php
           if (!in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1'))) return;
+          $results = array();
 
           if (extension_loaded('apc') && ini_get('apc.enabled')) {
             apc_clear_cache();
             apc_clear_cache('user');
             apc_clear_cache('opcode');
+            $results[] = 'apc cleared';
           }
           if (extension_loaded('opcache') && ini_get('opcache.enable')) {
             opcache_reset();
+            $results[] = 'opcache cleared';
           }
+          echo implode('\n', $results);
       ]
       filepath = release_path.join('apc_clear.php');
       begin
         upload! StringIO.new(contents), filepath
         execute :chmod, '644', filepath
-        execute :curl, '--silent', "#{fetch(:app_url)}/apc_clear.php"
+        info capture(:curl, '--silent', "#{fetch(:app_url)}/apc_clear.php")
       rescue Exception => err
         error err
       ensure
