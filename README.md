@@ -148,6 +148,36 @@ Internally this also appends the staging environemnts database information to
 default database settings. Once the connection is closed, it switches back to
 the local database settings.
 
+##### Share your local webserver on the internet
+
+Maybe you want to test out the site on your mobile, or have someo PM take a
+look at how everything is coming along.
+
+Simply ssh into the VM (`vagrant ssh`) and run `ngrok 80`. You will be given a
+unique address which you can share to anyone you want.
+
+##### Remote mobile debugging
+
+You can access your mobiles chrome windows through developers tools on your
+desktop using the [following tutorial](https://developer.chrome.com/devtools/docs/remote-debugging).
+
+1. Connect your phone to your computer
+2. Enable USB debugging in settings on your phone
+3. Go to `chrome://inspect#devices` on your desktop browser, and select your phone
+4. Allow the connection on your phone
+5. Choose inspect and start debugging.
+
+##### Update/Install Drupal modules.
+
+As `drush pm-update` and `drush pm-install` run within the VM and rsync is
+one-way, the files created will be one the host only.
+
+1. Exit the `vagrant gatling-rsync-auto` process if you have it running, this
+might override the new code before you can act.
+2. Run the `drush` commands.
+3. Run `make rsync-pull` to fetch the files from the guest VM to your host machine
+4. Commit the code and restart `vagrant gatling-rsync-auto`.
+
 #### Deploy
 
 ```sh
