@@ -178,6 +178,27 @@ might override the new code before you can act.
 3. Run `make rsync-pull` to fetch the files from the guest VM to your host machine
 4. Commit the code and restart `vagrant gatling-rsync-auto`.
 
+##### Using Browserstack Live
+
+[Browserstack](https://www.browserstack.com/local-testing)
+allows for local testing so you can easily access the VM through their service.
+
+1. Open the page on browserstack live.
+2. Click the settings wheel and tick the box for resolving all network URLs.
+3. Profit
+
+##### Remote mobile debugging using weinre
+
+[Weinre](http://people.apache.org/~pmuellr/weinre/docs/1.x/1.5.0/Home.html) is
+a remote web inspector, allowing you to inspect a remote
+client such as a browserstack session.
+
+1. Run `make weinre` and keep it running.
+2. Open the page you want to inspect and add `?debug` at the end of the URL.
+3. Go to `http://<project>.dev:9090` in your own browser and start inspecting
+
+_Unfortunately weinre does not display the CSS of media queries._
+
 #### Deploy
 
 ```sh
