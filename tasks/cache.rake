@@ -42,16 +42,16 @@ namespace :cache do
       # upload as of Capistrano 3.0.1 does not support within.
       contents = %Q[
         <?php
-          if (!in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1'))) return;
+          if (!in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1', $_SERVER['SERVER_ADDR']))) return;
           $results = array();
 
-          if (extension_loaded('apc') && ini_get('apc.enabled')) {
+          if (function_exists('apc_clear_cache')) {
             apc_clear_cache();
             apc_clear_cache('user');
             apc_clear_cache('opcode');
             $results[] = 'apc cleared';
           }
-          if (extension_loaded('opcache') && ini_get('opcache.enable')) {
+          if (function_exists('opcache_reset')) {
             opcache_reset();
             $results[] = 'opcache cleared';
           }
