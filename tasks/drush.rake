@@ -73,5 +73,14 @@ namespace :drush do
       end
     end
   end
+
+  desc "Rebuild the registry table and the system table."
+  task :registryrebuild do
+    on roles(:all) do |host|
+      within current_path do
+        execute fetch(:drush_cmd), :rr, '-y'
+      end
+    end
+  end
 end
 
