@@ -1,5 +1,5 @@
 # Location of root backup directory
-set :backup_dir,      "#{fetch(:deploy_to)}/backup"
+set :backup_dir, -> { "#{fetch(:deploy_to)}/backup" }
 # Backup directories within.
 set :backup_dirs,     %w[db]
 set :shared_settings, "sites/default/settings.local.php"
