@@ -1,5 +1,3 @@
-require "#{File.dirname(__FILE__)}/../ssh"
-
 set :tail_options, "-n 100 -f"
 set :log_apache_access, "/var/log/apache2/access.log"
 set :log_apache_error, "/var/log/apache2/error.log"
