@@ -1,4 +1,4 @@
-Capistrano 3 tasks for our drupal environments.
+Capistrano 3 tasks for our environments.
 
 NOTE! These tasks are **NOT** configured for multiple roles!
 
