@@ -33,3 +33,4 @@ class SSH
 
   private :parse_options
 end
+
