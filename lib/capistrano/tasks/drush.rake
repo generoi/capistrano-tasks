@@ -8,7 +8,7 @@ namespace :drush do
   desc "Set the site offline"
   task :site_offline do
     on roles(:all) do |host|
-      within current_path do
+      within fetch(:web_root, "#{current_path}") do
         execute fetch(:drush_cmd), :vset, 'maintenance_mode', '1', '-y'
       end
     end
@@ -17,7 +17,7 @@ namespace :drush do
   desc "Set the site online"
   task :site_online do
     on roles(:all) do |host|
-      within current_path do
+      within fetch(:web_root, "#{current_path}") do
         execute fetch(:drush_cmd), :vset, 'maintenance_mode', '0', '-y'
       end
     end
@@ -68,8 +68,17 @@ namespace :drush do
   desc "Run Drupal database migrations if required"
   task :updatedb do
     on roles(:all) do |host|
-      within current_path do
+      within fetch(:web_root, "#{current_path}") do
         execute fetch(:drush_cmd), :updatedb, '-y'
+      end
+    end
+  end
+
+  desc "Rebuild a Drupal 8 site and clear all its caches."
+  task :rebuild do
+    on roles(:all) do |host|
+      within fetch(:web_root, "#{current_path}") do
+        execute fetch(:drush_cmd), :rebuild, '-y'
       end
     end
   end
@@ -82,7 +91,7 @@ namespace :drush do
           execute :php, "registry_rebuild.php"
         end
       else
-        within current_path do
+        within fetch(:web_root, "#{current_path}") do
           execute fetch(:drush_cmd), :rr, '-y'
         end
       end
