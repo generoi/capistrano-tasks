@@ -1,9 +1,72 @@
+require 'capistrano/genero/helpers'
+include Capistrano::Genero::Helpers
+
 namespace :wp do
 
   desc 'Clear all caches'
   task :cache do
     invoke 'wp:cache:wpsc'
     invoke 'wp:cache:autoptimize'
+  end
+
+  task :setup do
+    invoke 'setup:environment'
+    invoke 'setup:shared'
+    invoke 'wp:setup:database'
+    invoke 'setup:config'
+    invoke 'setup:backup_dir'
+  end
+
+  namespace :setup do
+    task :database do
+      on roles(:app) do |host|
+        if test("[ -f #{shared_path.join(fetch(:shared_settings))} ]")
+          info "Configuration file already exists: #{shared_path.join(fetch(:shared_settings))}"
+          next
+        end
+
+        ask(:database, "#{fetch(:application)}")
+        ask(:username, "#{fetch(:application)}")
+        ask(:host, "localhost")
+        ask(:env, "development")
+        ask(:password, "")
+
+        contents = wp_env_contents(
+          fetch(:database),
+          fetch(:username),
+          fetch(:password),
+          fetch(:host),
+          fetch(:env),
+          fetch(:app_url)
+        )
+
+        # Scaffold the file.
+        execute :mkdir, '-p', File.dirname(shared_path.join(fetch(:shared_settings)))
+        upload! StringIO.new(contents), shared_path.join(fetch(:shared_settings))
+        execute :chmod, '0664', shared_path.join(fetch(:shared_settings))
+        info "Scaffolded configuration file: #{shared_path.join(fetch(:shared_settings))}"
+
+        puts "Do you want to scaffold the database?"
+        ask(:verification, 'y')
+
+        if fetch(:verification) == 'y'
+          # Create the database if needed.
+          begin
+            create_db(
+              fetch(:database),
+              fetch(:username),
+              fetch(:password),
+              'utf8mb4',
+              'utf8mb4_unicode_ci'
+            )
+          rescue Exception => err
+            error "Was not able to create the database."
+            error err
+            next
+          end
+        end
+      end
+    end
   end
 
   namespace :cache do

@@ -6,7 +6,11 @@ set :shared_settings, "sites/default/settings.local.php"
 
 desc "Setup a deploy environment"
 task :setup do
-  invoke "setup:environment"
+  invoke 'setup:environment'
+  invoke 'setup:shared'
+  invoke 'setup:config'
+  invoke 'setup:database'
+  invoke 'setup:backup_dir'
 end
 
 namespace :setup do
@@ -95,26 +99,31 @@ namespace :setup do
         );
       ]
 
-      # Create the database if needed.
-      begin
-        execute :mysql, '-u', 'root', '-e', "\"CREATE DATABASE IF NOT EXISTS #{fetch(:database)} CHARACTER SET utf8 COLLATE utf8_general_ci;\""
-        execute :mysql, '-u', 'root', '-e', "\"GRANT ALL PRIVILEGES ON #{fetch(:database)}.* TO '#{fetch(:username)}'@'localhost' IDENTIFIED BY '#{fetch(:password)}';\""
-        execute :mysql, '-u', 'root', '-e', "\"GRANT ALL PRIVILEGES ON #{fetch(:database)}.* TO '#{fetch(:username)}'@'127.0.0.1' IDENTIFIED BY '#{fetch(:password)}';\""
-        execute :mysql, '-u', 'root', '-e', "\"SET PASSWORD FOR '#{fetch(:username)}'@'localhost' = PASSWORD('#{fetch(:password)}');\""
-        execute :mysql, '-u', 'root', '-e', "\"SET PASSWORD FOR '#{fetch(:username)}'@'127.0.0.1' = PASSWORD('#{fetch(:password)}');\""
-        execute :mysql, '-u', 'root', '-e', "\"FLUSH PRIVILEGES;\""
-      rescue Exception => err
-        error "Was not able to create the database."
-        error err
-        next
-      end
-
       # Scaffold the file.
       execute :mkdir, '-p', File.dirname(shared_path.join(fetch(:shared_settings)))
       upload! StringIO.new(contents), shared_path.join(fetch(:shared_settings))
       execute :chmod, '0664', shared_path.join(fetch(:shared_settings))
       info "Scaffolded configuration file: #{shared_path.join(fetch(:shared_settings))}"
 
+      puts "Do you want to scaffold the database?"
+      ask(:verification, 'y')
+
+      if fetch(:verification) == 'y'
+        # Create the database if needed.
+        begin
+          create_db(
+            fetch(:database),
+            fetch(:username),
+            fetch(:password),
+            'utf8',
+            'utf8_general_ci'
+          )
+        rescue Exception => err
+          error "Was not able to create the database."
+          error err
+          next
+        end
+      end
     end
   end
 
@@ -130,9 +139,4 @@ namespace :setup do
       end
     end
   end
-
-  after :environment, 'setup:shared'
-  after :environment, 'setup:config'
-  after :environment, 'setup:database'
-  after :environment, 'setup:backup_dir'
 end
