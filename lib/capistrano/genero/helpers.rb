@@ -5,12 +5,12 @@ module Capistrano
     module Helpers
 
       def create_db(database, username, password, charset, collate)
-        execute :mysql, '-u', 'root', '-e', "\"CREATE DATABASE IF NOT EXISTS #{database} CHARACTER SET #{charset} COLLATE #{collate};\""
-        execute :mysql, '-u', 'root', '-e', "\"GRANT ALL PRIVILEGES ON #{database}.* TO '#{username}'@'localhost' IDENTIFIED BY '#{password}';\""
-        execute :mysql, '-u', 'root', '-e', "\"GRANT ALL PRIVILEGES ON #{database}.* TO '#{username}'@'127.0.0.1' IDENTIFIED BY '#{password}';\""
-        execute :mysql, '-u', 'root', '-e', "\"SET PASSWORD FOR '#{username}'@'localhost' = PASSWORD('#{password}');\""
-        execute :mysql, '-u', 'root', '-e', "\"SET PASSWORD FOR '#{username}'@'127.0.0.1' = PASSWORD('#{password}');\""
-        execute :mysql, '-u', 'root', '-e', "\"FLUSH PRIVILEGES;\""
+        execute :sudo, :mysql, '-u', 'root', '-e', "\"CREATE DATABASE IF NOT EXISTS #{database} CHARACTER SET #{charset} COLLATE #{collate};\""
+        execute :sudo, :mysql, '-u', 'root', '-e', "\"GRANT ALL PRIVILEGES ON #{database}.* TO '#{username}'@'localhost' IDENTIFIED BY '#{password}';\""
+        execute :sudo, :mysql, '-u', 'root', '-e', "\"GRANT ALL PRIVILEGES ON #{database}.* TO '#{username}'@'127.0.0.1' IDENTIFIED BY '#{password}';\""
+        execute :sudo, :mysql, '-u', 'root', '-e', "\"SET PASSWORD FOR '#{username}'@'localhost' = PASSWORD('#{password}');\""
+        execute :sudo, :mysql, '-u', 'root', '-e', "\"SET PASSWORD FOR '#{username}'@'127.0.0.1' = PASSWORD('#{password}');\""
+        execute :sudo, :mysql, '-u', 'root', '-e', "\"FLUSH PRIVILEGES;\""
       end
 
       def wp_env_contents(database, username, password, host, env, wp_home)
