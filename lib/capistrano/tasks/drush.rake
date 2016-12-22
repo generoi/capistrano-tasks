@@ -30,7 +30,7 @@ namespace :drush do
       within repo_path do
         revision = capture(:git, 'rev-parse', :HEAD)[0,5]
       end
-      within current_path do
+      within fetch(:web_root, "#{current_path}") do
         timestamp = Time.now.strftime('%Y%m%d-%H%M%S')
         file = "#{fetch(:backup_dir)}/db/release-#{timestamp}-#{revision}.sql"
         execute fetch(:drush_cmd), 'sql-dump', fetch(:drush_sql_dump_options), "--result-file=#{file}"
@@ -41,7 +41,7 @@ namespace :drush do
   desc "Import backed up database"
   task :importdb do
     on roles(:all) do |host|
-      within current_path do
+      within fetch(:web_root, "#{current_path}") do
         dump_files = capture("ls #{fetch(:backup_dir)}/db -1");
         unless dump_files.lines.count
           info "There are no backups which can be restored."
