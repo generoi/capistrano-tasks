@@ -5,6 +5,7 @@ if (!in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1', $_SERVER['SERVE
 }
 
 define('CACHE_DIR', __DIR__ . '/app/cache');
+define('TIMBER', 'timber');
 define('AUTOPTIMIZE', 'autoptimize');
 define('WPSUPERCACHE', 'wpsc');
 
@@ -65,6 +66,9 @@ function init($task)
     switch ($task) {
         case AUTOPTIMIZE:
             clearCache(CACHE_DIR . '/autoptimize');
+            break;
+        case TIMBER:
+            clearCache(CACHE_DIR . '/timber');
             break;
         case WPSUPERCACHE:
             clearCache([

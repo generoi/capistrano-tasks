@@ -70,6 +70,23 @@ namespace :wp do
   end
 
   namespace :cache do
+    desc 'Flush Timber cache'
+    task :timber do
+      on release_roles :all do
+        local_path = File.expand_path('../../genero/files/wp-clear-cache.php', __FILE__);
+        remote_path = File.join(fetch(:web_root, release_path.join('web')), 'wp-clear-cache.php');
+        begin
+          upload! local_path, remote_path
+          execute :chmod, '644', remote_path
+          info capture(:curl, '--silent', "#{fetch(:app_url)}/wp-clear-cache.php?command=timber")
+        rescue Exception => err
+          error err
+        ensure
+          execute :rm, '-f', remote_path
+        end
+      end
+    end
+
     desc 'Flush WP Super Cache'
     task :wpsc do
       on release_roles :all do
