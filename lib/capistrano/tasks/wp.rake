@@ -5,8 +5,9 @@ namespace :wp do
 
   desc 'Clear all caches'
   task :cache do
-    invoke 'wp:cache:wpsc'
+    invoke 'wp:cache:timber'
     invoke 'wp:cache:autoptimize'
+    invoke 'wp:cache:wpsc'
   end
 
   task :setup do
