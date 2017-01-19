@@ -11,6 +11,7 @@ namespace :drush do
     on roles(:all) do |host|
       within fetch(:web_root, "#{current_path}") do
         set :drupal_version, capture(fetch(:drush_cmd), 'status', 'drupal-version', '--format=list');
+        info "Drupal version: #{fetch(:drupal_version)}"
       end
     end
   end
@@ -20,7 +21,7 @@ namespace :drush do
     on roles(:all) do |host|
       invoke 'drush:drupal_version'
       within fetch(:web_root, "#{current_path}") do
-        if (fetch(:drupal_version).to_f > 8) then
+        if (fetch(:drupal_version).to_f >= 8) then
           execute fetch(:drush_cmd), 'sset', 'system.maintenance_mode', '1', '-y'
         else
           execute fetch(:drush_cmd), :vset, 'maintenance_mode', '1', '-y'
@@ -34,7 +35,7 @@ namespace :drush do
     on roles(:all) do |host|
       invoke 'drush:drupal_version'
       within fetch(:web_root, "#{current_path}") do
-        if (fetch(:drupal_version).to_f > 8) then
+        if (fetch(:drupal_version).to_f >= 8) then
           execute fetch(:drush_cmd), 'sset', 'system.maintenance_mode', '0', '-y'
         else
           execute fetch(:drush_cmd), :vset, 'maintenance_mode', '0', '-y'
@@ -118,4 +119,3 @@ namespace :drush do
     end
   end
 end
-
