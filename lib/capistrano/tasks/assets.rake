@@ -10,10 +10,9 @@ namespace :assets do
   desc "Push assets to remote"
   task :push do
     next unless any? :assets_output
-    on roles(:all) do |host|
-      fetch(:assets_output).each do |dir|
-        execute :mkdir, '-p', release_path.join(dir)
-        run_locally do
+    run_locally do
+      roles(:all).each do |host|
+        fetch(:assets_output).each do |dir|
           ssh = SSH.new(host, fetch(:ssh_options))
           execute :rsync, "--rsh=\"ssh #{ssh.args.join(' ')}\"", fetch(:rsync_options), "#{dir}/", "#{ssh.remote}:#{release_path.join(dir)}"
         end
