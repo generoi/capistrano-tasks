@@ -1,6 +1,8 @@
 require 'capistrano/genero/helpers'
 include Capistrano::Genero::Helpers
 
+set :wpcli_cmd, "wp"
+
 namespace :wp do
 
   desc 'Clear all caches'
@@ -84,6 +86,15 @@ namespace :wp do
           error err
         ensure
           execute :rm, '-f', remote_path
+        end
+      end
+    end
+
+    desc 'Flush Object Cache'
+    task :objectcache do
+      on release_roles :all do
+        within fetch(:web_root, release_path.join('web')) do
+          execute fetch(:wpcli_cmd), 'cache', 'flush'
         end
       end
     end
