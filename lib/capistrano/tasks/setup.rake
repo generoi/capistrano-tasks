@@ -43,7 +43,10 @@ namespace :setup do
       within fetch(:shared_dir) do
         fetch(:linked_dirs).each do |dir|
           execute :mkdir, '-p', shared_path.join(dir)
-          execute :chmod, '777', shared_path.join(dir)
+          execute :chmod, '775', shared_path.join(dir)
+          execute :chown, "#{fetch(:user)}:#{fetch(:group)}", shared_path.join(dir)
+          # Make the group sticky, so that the deploy user always has access.
+          execute :chmod, 'g+s', shared_path.join(dir)
         end
       end
     end
