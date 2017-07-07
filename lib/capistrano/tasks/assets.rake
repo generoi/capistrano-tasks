@@ -3,7 +3,7 @@ namespace :assets do
   task :compile do
     next if fetch(:assets_compile).nil?
     run_locally do
-      puts capture(fetch(:assets_compile))
+      execute fetch(:assets_compile)
     end
   end
 
