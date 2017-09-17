@@ -81,7 +81,7 @@ namespace :wp do
         begin
           upload! local_path, remote_path
           execute :chmod, '644', remote_path
-          info capture(:curl, '--silent', "#{fetch(:app_url)}/wp-clear-cache.php?command=timber")
+          info capture(:curl, '--silent', '--location', "#{fetch(:app_url)}/wp-clear-cache.php?command=timber")
         rescue Exception => err
           error err
         ensure
@@ -107,7 +107,7 @@ namespace :wp do
         begin
           upload! local_path, remote_path
           execute :chmod, '644', remote_path
-          info capture(:curl, '--silent', "#{fetch(:app_url)}/wp-clear-cache.php?command=wpsc")
+          info capture(:curl, '--silent', '--location', "#{fetch(:app_url)}/wp-clear-cache.php?command=wpsc")
         rescue Exception => err
           error err
         ensure
@@ -124,7 +124,7 @@ namespace :wp do
         begin
           upload! local_path, remote_path
           execute :chmod, '644', remote_path
-          info capture(:curl, '--silent', "#{fetch(:app_url)}/wp-clear-cache.php?command=autoptimize")
+          info capture(:curl, '--silent', '--location', "#{fetch(:app_url)}/wp-clear-cache.php?command=autoptimize")
         rescue Exception => err
           error err
         ensure

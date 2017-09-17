@@ -61,7 +61,7 @@ namespace :cache do
       begin
         upload! StringIO.new(contents), filepath
         execute :chmod, '644', filepath
-        info capture(:curl, '--silent', '-k', "#{fetch(:app_url)}/apc_clear.php")
+        info capture(:curl, '--silent', '-k', '--location', "#{fetch(:app_url)}/apc_clear.php")
       rescue Exception => err
         error err
       ensure
