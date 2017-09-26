@@ -107,6 +107,30 @@ cap production cache:apc
 cap production cache:cssjs
 ```
 
+### Laravel specific tasks
+
+```sh
+# Execute a provided artisan command.
+# Replace :command_name with the command to execute
+invoke 'laravel:artisan[:command_name]'
+
+# Create a cache file for faster configuration loading
+invoke 'laravel:config_cache'
+
+# Create a route cache file for faster route registration
+invoke 'laravel:route_cache'
+
+# Create a symbolic link from "public/storage" to "storage/app/public"
+invoke 'laravel:storage_link'
+
+# Run the database migrations.
+invoke 'laravel:migrate'
+
+# Rollback the last database migration.
+invoke 'laravel:migrate_rollback'
+
+```
+
 ### Wordpress specific tasks
 
 ```sh
