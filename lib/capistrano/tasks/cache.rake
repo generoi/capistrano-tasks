@@ -2,6 +2,7 @@ set :varnish_cmd,         "/usr/bin/varnishadm"
 set :varnish_address,     "127.0.0.1:6082"
 set :varnish_ban_pattern, "req.url ~ ^/"
 
+set :opcache_upload_path, -> { release_path.join('apc_clear.php') }
 set :drush_cmd,           "drush"
 
 desc "Clear all caches"
@@ -36,8 +37,8 @@ namespace :cache do
     end
   end
 
-  desc "Clear APC cache"
-  task :apc do
+  desc "Clear OPcache"
+  task :opcache do
     on roles(:all) do |host|
       # upload as of Capistrano 3.0.1 does not support within.
       contents = %Q[
@@ -57,7 +58,7 @@ namespace :cache do
           }
           echo implode('\n', $results);
       ]
-      filepath = release_path.join('apc_clear.php');
+      filepath = fetch(:opcache_upload_path)
       begin
         upload! StringIO.new(contents), filepath
         execute :chmod, '644', filepath
@@ -68,5 +69,10 @@ namespace :cache do
         execute :rm, '-f', filepath
       end
     end
+  end
+
+  desc "Clear APC cache"
+  task :apc do
+    invoke "cache:opcache"
   end
 end
