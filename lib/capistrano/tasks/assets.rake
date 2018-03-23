@@ -12,9 +12,12 @@ namespace :assets do
     next unless any? :assets_output
     run_locally do
       roles(:all).each do |host|
-        fetch(:assets_output).each do |dir|
+        fetch(:assets_output).each do |path|
           ssh = SSH.new(host, fetch(:ssh_options))
-          execute :rsync, "--rsh=\"ssh #{ssh.args.join(' ')}\"", fetch(:rsync_options), "#{dir}/", "#{ssh.remote}:#{release_path.join(dir)}"
+          path = path.chomp('/')
+          source = File.directory?(path) ? "#{path}/" : path
+          destination = release_path.join(path)
+          execute :rsync, "--rsh=\"ssh #{ssh.args.join(' ')}\"", fetch(:rsync_options), "#{source}", "#{ssh.remote}:#{destination}"
         end
       end
     end
