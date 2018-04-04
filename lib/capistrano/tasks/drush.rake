@@ -6,20 +6,9 @@ set :drush_sql_dump_options, "--structure-tables-key=common --gzip"
 set :drupal_version, "7"
 
 namespace :drush do
-  desc "Get Drupal version"
-  task :drupal_version do
-    on roles(:all) do |host|
-      within fetch(:web_root, "#{current_path}") do
-        set :drupal_version, capture(fetch(:drush_cmd), 'status', 'drupal-version', '--format=list');
-        info "Drupal version: #{fetch(:drupal_version)}"
-      end
-    end
-  end
-
   desc "Set the site offline"
   task :site_offline do
     on roles(:all) do |host|
-      invoke 'drush:drupal_version'
       within fetch(:web_root, "#{current_path}") do
         if (fetch(:drupal_version).to_f >= 8) then
           execute fetch(:drush_cmd), 'sset', 'system.maintenance_mode', '1', '-y'
@@ -33,7 +22,6 @@ namespace :drush do
   desc "Set the site online"
   task :site_online do
     on roles(:all) do |host|
-      invoke 'drush:drupal_version'
       within fetch(:web_root, "#{current_path}") do
         if (fetch(:drupal_version).to_f >= 8) then
           execute fetch(:drush_cmd), 'sset', 'system.maintenance_mode', '0', '-y'
