@@ -56,6 +56,10 @@ namespace :cache do
             opcache_reset();
             $results[] = 'opcache cleared';
           }
+          if (function_exists('clearstatcache')) {
+            clearstatcache();
+            $results[] = 'file status cache cleared';
+          }
           echo implode('\n', $results);
       ]
       filepath = fetch(:opcache_upload_path)
