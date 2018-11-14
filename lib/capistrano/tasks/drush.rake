@@ -92,6 +92,15 @@ namespace :drush do
     end
   end
 
+  desc "Import Drupal 8 configuration"
+  task :config_import do
+    on roles(:all) do
+      within fetch(:web_root, "#{current_path}") do
+        execute fetch(:drush_cmd), :cim, '-y'
+      end
+    end
+  end
+
   desc "Rebuild the registry table and the system table."
   task :registryrebuild do
     on roles(:all) do |host|
